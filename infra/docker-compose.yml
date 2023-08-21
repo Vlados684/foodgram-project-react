@@ -1,23 +1,22 @@
-version: '3.9'
+version: '3.3'
 services:
-
   db:
-    image: postgres:14.8-bullseye
-    restart: always
+    image: postgres:13.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file: .env
+    env_file:
+      - ../.env
 
   backend:
     image: vlados684/foodgram_backend:latest
-    restart: always
     volumes:
-      - data_value:/code/data/
-      - static_value:/code/static/
-      - media_value:/code/media/
+      - static_value:/app/static/
+      - media_value:/app/media/
+      - redoc:/app/api/docs/
     depends_on:
       - db
-    env_file: .env
+    env_file:
+      - ../.env
 
   frontend:
     image: vlados684/foodgram_frontend:latest
@@ -27,15 +26,14 @@ services:
       - backend
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.19.3
     restart: always
     ports:
-      - 80:80
+      - "8000:80"
     volumes:
-      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
-      - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
+      - redoc:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
@@ -45,4 +43,4 @@ volumes:
   postgres_data:
   static_value:
   media_value:
-  data_value:
+  redoc:
