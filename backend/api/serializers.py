@@ -1,6 +1,6 @@
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCart, Tag)
-from users.models import Subscribe, User
+from users.models import Subscriber, User
 
 from rest_framework import serializers
 from django.db import transaction
@@ -21,7 +21,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         if self.context.get('request') and not (self.context['request'].
                                                 user.is_anonymous):
-            return Subscribe.objects.filter(user=self.context['request'].user,
+            return Subscriber.objects.filter(user=self.context['request'].user,
                                             author=obj).exists()
         return False
 
@@ -72,8 +72,8 @@ class SetPasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {'current_password': 'Неправильный пароль.'}
             )
-        if ((validated_data['current_password'] ==
-             validated_data['new_password'])):
+        if (validated_data['current_password'] ==
+            validated_data['new_password']):
             raise serializers.ValidationError(
                 {'new_password': 'Новый пароль должен отличаться.'}
             )
@@ -112,8 +112,7 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return (self.context.get('request').user.is_authenticated and
-                Subscribe.objects.filter(
-            user=self.context['request'].user, author=obj).exists())
+                Subscriber.objects.filter(user=self.context['request'].user, author=obj).exists())
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -154,8 +153,7 @@ class SubscribeAuthorSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return (self.context.get('request').user.is_authenticated and
-                Subscribe.objects.filter(
-            user=self.context['request'].user, author=obj).exists())
+                Subscriber.objects.filter(user=self.context['request'].user, author=obj).exists())
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -212,13 +210,11 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         return (self.context.get('request').user.is_authenticated and
-                Favorite.objects.filter(
-            user=self.context['request'].user, recipe=obj).exists())
+                Favorite.objects.filter(user=self.context['request'].user, recipe=obj).exists())
 
     def get_is_in_shopping_cart(self, obj):
         return (self.context.get('request').user.is_authenticated and
-                ShoppingCart.objects.filter(
-            user=self.context['request'].user, recipe=obj).exists())
+                ShoppingCart.objects.filter(user=self.context['request'].user, recipe=obj).exists())
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
