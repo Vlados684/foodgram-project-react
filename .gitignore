@@ -103,6 +103,7 @@ celerybeat.pid
 
 # Environments
 .env
+.dockerignore
 .venv
 env/
 venv/
