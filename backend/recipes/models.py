@@ -11,7 +11,7 @@ class Ingredient(models.Model):
     name = models.CharField(
         'Название ингредиента',
         max_length=200)
-    measurement_unit = models.CharField(
+    measurement = models.CharField(
         'Единица измерения ингредиента',
         max_length=200)
 
@@ -21,7 +21,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return f'{self.name}, {self.measurement_unit}.'
+        return f'{self.name}, {self.measurement}.'
 
 
 class Tag(models.Model):
@@ -163,7 +163,7 @@ class Favorite(models.Model):
 
     @receiver(post_save, sender=User)
     def create_favorite_recipe(
-            sender, instance, created, **kwargs):
+            self, instance, created, **kwargs):
         if created:
             return Favorite.objects.create(user=instance)
 
@@ -191,6 +191,6 @@ class ShoppingCart(models.Model):
 
     @receiver(post_save, sender=User)
     def create_shopping_cart(
-            sender, instance, created, **kwargs):
+            self, instance, created, **kwargs):
         if created:
             return ShoppingCart.objects.create(user=instance)

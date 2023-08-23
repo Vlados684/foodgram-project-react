@@ -16,9 +16,10 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='В избранном')
     def in_favorites(self, obj):
         return obj.favorite_recipe.count()
-    
+
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('tags')
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):

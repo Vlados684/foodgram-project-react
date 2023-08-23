@@ -12,11 +12,13 @@ from foodgram.settings import FILE_NAME
 from api.permissions import IsAuthorOrAdminOrReadOnly
 from recipes.models import (Favorite, Ingredient, Recipe, ShoppingCart,
                             Subscribe, Tag, RecipeIngredients)
-from users.models import Subscribe
+from users.models import Subscriber
 
 from api.serializers import (IngredientSerializer, RecipeReadSerializer,
-                          SubscribeAuthorSerializer, CustomUserCreateSerializer,
-                          SubscriptionsSerializer, TagSerializer, RecipeCreateSerializer)
+                             SubscribeAuthorSerializer,
+                             CustomUserCreateSerializer,
+                             SubscriptionsSerializer, TagSerializer,
+                             RecipeCreateSerializer)
 from api.pagination import LimitPageNumberPagination
 
 User = get_user_model()
@@ -57,7 +59,7 @@ class MainUserViewSet(UserViewSet):
                             status=status.HTTP_201_CREATED)
 
         if request.method == 'DELETE':
-            get_object_or_404(Subscribe, user=request.user,
+            get_object_or_404(Subscriber, user=request.user,
                               author=author).delete()
             return Response({'detail': 'Вы отписались!'},
                             status=status.HTTP_204_NO_CONTENT)
@@ -89,7 +91,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrAdminOrReadOnly,)
     serializer_class = RecipeReadSerializer
-    filterset_class = RecipeFilters
+    filter_class = RecipeFilters
     pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):
@@ -107,7 +109,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'POST':
             serializer = RecipeReadSerializer(recipe, data=request.data,
-                                          context={"request": request})
+                                              context={"request": request})
             serializer.is_valid(raise_exception=True)
             if not Favorite.objects.filter(user=request.user,
                                            recipe=recipe).exists():
@@ -166,14 +168,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__shopping_cart__user=self.request.user
         ).values(
             'ingredient__name',
-            'ingredient__measurement_unit'
+            'ingredient__measurement'
         ).order_by('ingredient__name').annotate(amount=Sum('amount'))
         shop_list = []
         [shop_list.append(
             '{} - {} {}.'.format(
                 ingredient['ingredient__name'],
                 ingredient['amount'],
-                ingredient['ingredient__measurement_unit']
+                ingredient['ingredient__measurement']
             )
         ) for ingredient in ingredients]
         file_content = 'Список покупок:\n' + '\n'.join(shop_list)
