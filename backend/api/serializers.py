@@ -22,7 +22,7 @@ class CustomUserReadSerializer(serializers.ModelSerializer):
         if self.context.get('request') and not (self.context['request'].
                                                 user.is_anonymous):
             return Subscriber.objects.filter(user=self.context['request'].user,
-                                            author=obj).exists()
+                                             author=obj).exists()
         return False
 
 
@@ -73,7 +73,7 @@ class SetPasswordSerializer(serializers.Serializer):
                 {'current_password': 'Неправильный пароль.'}
             )
         if (validated_data['current_password']
-            == validated_data['new_password']):
+           == validated_data['new_password']):
             raise serializers.ValidationError(
                 {'new_password': 'Новый пароль должен отличаться.'}
             )
